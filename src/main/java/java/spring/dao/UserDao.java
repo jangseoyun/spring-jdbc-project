@@ -39,16 +39,13 @@ public class UserDao {
         }
     }
 
-    public User findById(int id) {
+    public User findById(int id) throws SQLException {
         Map<String, String> env = System.getenv();
-        Connection c;
+        Connection conn = localConn.dbConnection();
         try {
-            // DB접속 (ex sql workbeanch실행)
-            c = DriverManager.getConnection(env.get("DB_HOST"),
-                    env.get("DB_USER"), env.get("DB_PASSWORD"));
 
             // Query문 작성
-            PreparedStatement pstmt = c.prepareStatement(userQuery.findOne());
+            PreparedStatement pstmt = conn.prepareStatement(userQuery.findOne());
             pstmt.setInt(1, id);
 
             // Query문 실행
@@ -59,7 +56,7 @@ public class UserDao {
 
             rs.close();
             pstmt.close();
-            c.close();
+            conn.close();
 
             return user;
 
