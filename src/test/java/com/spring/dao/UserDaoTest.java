@@ -21,19 +21,27 @@ class UserDaoTest {
     @Autowired
     ApplicationContext context;
 
-    @BeforeEach
-    static void beforeAll() {
+    UserDao userDao;
+    User user1;
+    User user2;
+    User user3;
 
+    @BeforeEach
+    void setup() throws SQLException{
+        userDao = context.getBean("localUserDao", UserDao.class);
+        user1 = new User(1, "seoyun", "1234");
+        user2 = new User(2, "seoseo", "1234");
+        user3 = new User(3, "yunyun", "1234");
+        userDao.deleteAll();
     }
 
     @Test
     void addAndGet() throws SQLException {
-        UserDao userDao = new UserDaoFactory().localUserDao();
-        int id = 44;
-        userDao.add(new User(id, "kyeongrok", "12345"));
+        int id = 1;
+        userDao.add(new User(id, "seoyun", "1234"));
         User user = userDao.findById(id);
-        assertEquals("kyeongrok", user.getName());
-        assertEquals("12345", user.getPassword());
+        assertEquals("seoyun", user.getName());
+        assertEquals("1234", user.getPassword());
     }
 
 
