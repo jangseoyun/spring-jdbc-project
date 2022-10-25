@@ -1,12 +1,12 @@
 package com.spring.dao;
 
 import com.spring.comtext.AddAllStrategy;
-import com.spring.domain.ConnectionMaker;
 import com.spring.domain.QueryCrud;
 import com.spring.domain.UserQueryImpl;
 import com.spring.vo.User;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,18 +16,18 @@ import java.util.List;
 
 public class UserDao {
 
-    private ConnectionMaker localConn;
+    private DataSource dataSource;
     private QueryCrud userQuery;//적용 단계 AddAllStrategy 이외 쿼리 인터페이스 사용
 
-    public UserDao(ConnectionMaker localConn) {
-        this.localConn = localConn;
+    public UserDao(DataSource dataSource) {
+        this.dataSource = dataSource;
         this.userQuery = new UserQueryImpl();
     }
 
     public void add(User user) {
 
         try {
-            Connection conn = localConn.dbConnection();
+            Connection conn = dataSource.getConnection();
             //쿼리 바인딩
             PreparedStatement pstmt = new AddAllStrategy().makePreparedStatement(conn);
             pstmt.setInt(1, user.getId());
@@ -47,7 +47,7 @@ public class UserDao {
     public User findById(int id) {
 
         try {
-            Connection conn = localConn.dbConnection();
+            Connection conn = dataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(userQuery.findOne());
             pstmt.setInt(1, id);
 
@@ -75,7 +75,7 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        Connection conn = localConn.dbConnection();
+        Connection conn = dataSource.getConnection();
 
         PreparedStatement ps = conn.prepareStatement(userQuery.deleteAll());
         ps.executeUpdate();
@@ -85,7 +85,7 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        Connection conn = localConn.dbConnection();
+        Connection conn = dataSource.getConnection();
 
         PreparedStatement ps = conn.prepareStatement(userQuery.findAll());
         ResultSet rs = ps.executeQuery();
@@ -106,7 +106,7 @@ public class UserDao {
         int count = 0;
         Connection conn;
         try {
-            conn = localConn.dbConnection();
+            conn = dataSource.getConnection();
             PreparedStatement ps = conn.prepareStatement(userQuery.getCountAll());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
