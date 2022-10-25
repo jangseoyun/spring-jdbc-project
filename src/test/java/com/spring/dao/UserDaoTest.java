@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -13,6 +14,7 @@ import com.spring.vo.User;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("TODO")
 @ExtendWith(SpringExtension.class)
@@ -38,11 +40,17 @@ class UserDaoTest {
     @Test
     void addAndGet() throws SQLException {
         int id = 1;
-        userDao.add(new User(id, "seoyun", "1234"));
+        userDao.add(user1);
         User user = userDao.findById(id);
         assertEquals("seoyun", user.getName());
         assertEquals("1234", user.getPassword());
     }
 
-
+    @DisplayName("user가 null인 경우")
+    @Test
+    void getUserNull() throws SQLException {
+        userDao.add(user1);
+        assertThrows(EmptyResultDataAccessException.class
+                , () -> userDao.findById(4));
+    }
 }
