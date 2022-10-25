@@ -1,9 +1,9 @@
-package java.spring.dao;
+package com.spring.dao;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.spring.domain.LocalConnectionImpl;
+import com.spring.domain.LocalConnectionImpl;
 import java.sql.SQLException;
 
 @Configuration

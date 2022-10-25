@@ -1,9 +1,11 @@
-package java.spring.dao;
+package com.spring.dao;
 
-import java.spring.domain.ConnectionMaker;
-import java.spring.domain.QueryCrud;
-import java.spring.domain.UserQueryImpl;
-import java.spring.vo.User;
+import com.spring.domain.QueryCrud;
+import com.spring.domain.UserQueryImpl;
+import com.spring.domain.ConnectionMaker;
+import com.spring.vo.User;
+import org.springframework.dao.EmptyResultDataAccessException;
+
 import java.sql.*;
 import java.util.Map;
 
@@ -39,7 +41,6 @@ public class UserDao {
     }
 
     public User findById(int id) throws SQLException {
-        Map<String, String> env = System.getenv();
         Connection conn = localConn.dbConnection();
         try {
 
@@ -47,12 +48,16 @@ public class UserDao {
             pstmt.setInt(1, id);
 
             ResultSet rs = pstmt.executeQuery();
-            rs.next();
-            User user = new User(
-                    rs.getInt("id")
-                    , rs.getString("name")
-                    , rs.getString("password")
-            );
+            User user;
+            if (rs.next()) {
+                user = new User(
+                        rs.getInt("id")
+                        , rs.getString("name")
+                        , rs.getString("password")
+                );
+            } else {
+                throw new EmptyResultDataAccessException(1);
+            }
 
             rs.close();
             pstmt.close();
@@ -68,7 +73,7 @@ public class UserDao {
     public static void main(String[] args) throws SQLException {
         UserDao userDao = new UserDaoFactory().localUserDao();
 //        userDao.add();
-        User user = userDao.findById(1);
+        User user = userDao.findById(5);
         System.out.println(user.getName());
     }
 }

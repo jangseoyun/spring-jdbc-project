@@ -1,4 +1,4 @@
-package java.spring.vo;
+package com.spring.vo;
 
 public class User {
     private int id;

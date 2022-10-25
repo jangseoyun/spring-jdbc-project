@@ -1,4 +1,4 @@
-package java.spring.domain;
+package com.spring.domain;
 
 public interface QueryCrud {
     String findOne();

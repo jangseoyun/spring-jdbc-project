@@ -1,4 +1,4 @@
-package java.spring.domain;
+package com.spring.domain;
 
 import java.sql.Connection;
 import java.sql.SQLException;
