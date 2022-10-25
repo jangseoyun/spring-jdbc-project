@@ -62,4 +62,16 @@ class UserDaoTest {
         List<User> findAll = userDao.findAll();
         assertEquals(1, findAll.size());
     }
+
+    @DisplayName("등롣된 사용자 총 카운트 가져오기")
+    @Test
+    void getCountAll() throws SQLException{
+        userDao.add(user1);
+        userDao.add(user2);
+        userDao.add(user3);
+
+        assertEquals(3, userDao.getCountAll());
+    }
+
+
 }
