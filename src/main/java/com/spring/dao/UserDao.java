@@ -72,13 +72,12 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        Connection conn = dataSource.getConnection();
-
-        PreparedStatement ps = conn.prepareStatement(userQuery.deleteAll());
-        ps.executeUpdate();
-
-        conn.close();
-        ps.close();
+        jdbcContext.setWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
+                return conn.prepareStatement(userQuery.deleteAll());
+            }
+        });
     }
 
     public List<User> findAll() throws SQLException {
