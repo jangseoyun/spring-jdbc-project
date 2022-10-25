@@ -1,119 +1,65 @@
 package com.spring.dao;
 
-import com.spring.comtext.JdbcContext;
-import com.spring.comtext.StatementStrategy;
 import com.spring.domain.QueryCrud;
 import com.spring.domain.UserQueryImpl;
 import com.spring.vo.User;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
 
-    private DataSource dataSource;
-    private JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
     private QueryCrud userQuery;//적용 단계 AddAllStrategy 이외 쿼리 인터페이스 사용
 
     public UserDao(DataSource dataSource) {
-        this.dataSource = dataSource;
-        this.jdbcContext = new JdbcContext(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.userQuery = new UserQueryImpl();
     }
 
     public void add(User user) {
-        jdbcContext.setWithStatementStrategy(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
-                PreparedStatement ps = conn.prepareStatement(userQuery.add());
-                ps.setInt(1, user.getId());
-                ps.setString(2, user.getName());
-                ps.setString(3, user.getPassword());
-                return ps;
-            }
-        });
-
+        jdbcTemplate.update(userQuery.add(), user.getId(), user.getName(), user.getPassword());
     }
 
     public User findById(int id) {
+        RowMapper<User> rowMapper = new RowMapper<>() {
+            @Override
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                User getUser = new User(rs.getInt("id")
+                        , rs.getString("name")
+                        , rs.getString("password"));
+                return getUser;
+            }
+        };
 
-        try {
-            Connection conn = dataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(userQuery.findOne());
-            pstmt.setInt(1, id);
+        return jdbcTemplate.queryForObject(userQuery.findOne(), rowMapper, id);
+    }
 
-            ResultSet rs = pstmt.executeQuery();
-            User user;
-            if (rs.next()) {
-                user = new User(
-                        rs.getInt("id")
+    public void deleteAll() {
+        jdbcTemplate.update(userQuery.deleteAll());
+    }
+
+    public List<User> findAll() {
+        RowMapper<User> rowMapper = new RowMapper<>() {
+            @Override
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                User user = new User(rs.getInt("id")
                         , rs.getString("name")
                         , rs.getString("password")
                 );
-            } else {
-                throw new EmptyResultDataAccessException(1);
+                return user;
             }
-
-            rs.close();
-            pstmt.close();
-            conn.close();
-
-            return user;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void deleteAll() throws SQLException {
-        jdbcContext.setWithStatementStrategy(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
-                return conn.prepareStatement(userQuery.deleteAll());
-            }
-        });
-    }
-
-    public List<User> findAll() throws SQLException {
-        Connection conn = dataSource.getConnection();
-
-        PreparedStatement ps = conn.prepareStatement(userQuery.findAll());
-        ResultSet rs = ps.executeQuery();
-
-        List<User> userList = new ArrayList<>();
-        while (rs.next()) {
-            userList.add(
-                    new User(rs.getInt("id")
-                            , rs.getString("name")
-                            , rs.getString("password"))
-            );
-        }
-
-        return userList;
+        };
+        return jdbcTemplate.query(userQuery.findAll(), rowMapper);
     }
 
     public int getCountAll() {
-        int count = 0;
-        Connection conn;
-        try {
-            conn = dataSource.getConnection();
-            PreparedStatement ps = conn.prepareStatement(userQuery.getCountAll());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                count = rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.getMessage();
-        }
-        return count;
+        return jdbcTemplate.queryForObject(userQuery.getCountAll(), Integer.class);
     }
-
 
     public static void main(String[] args) throws SQLException {
         UserDao userDao = new UserDaoFactory().localUserDao();
