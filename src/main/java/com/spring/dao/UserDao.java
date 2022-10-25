@@ -17,7 +17,7 @@ import java.util.List;
 public class UserDao {
 
     private ConnectionMaker localConn;
-    private QueryCrud userQuery;
+    private QueryCrud userQuery;//적용 단계 AddAllStrategy 이외 쿼리 인터페이스 사용
 
     public UserDao(ConnectionMaker localConn) {
         this.localConn = localConn;
