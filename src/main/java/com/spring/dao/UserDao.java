@@ -70,6 +70,13 @@ public class UserDao {
         }
     }
 
+    public void deleteAll() throws SQLException {
+        Connection conn = localConn.dbConnection();
+
+        PreparedStatement ps = conn.prepareStatement(userQuery.deleteAll());
+        ps.executeUpdate();
+    }
+
     public static void main(String[] args) throws SQLException {
         UserDao userDao = new UserDaoFactory().localUserDao();
 //        userDao.add();
