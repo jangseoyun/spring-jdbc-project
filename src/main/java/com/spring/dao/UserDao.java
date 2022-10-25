@@ -1,6 +1,7 @@
 package com.spring.dao;
 
-import com.spring.comtext.AddAllStrategy;
+import com.spring.comtext.JdbcContext;
+import com.spring.comtext.StatementStrategy;
 import com.spring.domain.QueryCrud;
 import com.spring.domain.UserQueryImpl;
 import com.spring.vo.User;
@@ -17,31 +18,27 @@ import java.util.List;
 public class UserDao {
 
     private DataSource dataSource;
+    private JdbcContext jdbcContext;
     private QueryCrud userQuery;//적용 단계 AddAllStrategy 이외 쿼리 인터페이스 사용
 
     public UserDao(DataSource dataSource) {
         this.dataSource = dataSource;
+        this.jdbcContext = new JdbcContext(dataSource);
         this.userQuery = new UserQueryImpl();
     }
 
     public void add(User user) {
+        jdbcContext.setWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
+                PreparedStatement ps = conn.prepareStatement(userQuery.add());
+                ps.setInt(1, user.getId());
+                ps.setString(2, user.getName());
+                ps.setString(3, user.getPassword());
+                return ps;
+            }
+        });
 
-        try {
-            Connection conn = dataSource.getConnection();
-            //쿼리 바인딩
-            PreparedStatement pstmt = new AddAllStrategy().makePreparedStatement(conn);
-            pstmt.setInt(1, user.getId());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getPassword());
-
-            pstmt.executeUpdate();
-
-            pstmt.close();
-            conn.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public User findById(int id) {
