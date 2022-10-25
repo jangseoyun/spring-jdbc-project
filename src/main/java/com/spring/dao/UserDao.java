@@ -14,7 +14,7 @@ import java.util.List;
 public class UserDao {
 
     private JdbcTemplate jdbcTemplate;
-    private QueryCrud userQuery;//적용 단계 AddAllStrategy 이외 쿼리 인터페이스 사용
+    private QueryCrud userQuery;
 
     public UserDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
