@@ -22,13 +22,12 @@ public class UserDao {
         Connection conn = localConn.dbConnection();
         try {
 
-            // Query문 작성
+            //쿼리 바인딩
             PreparedStatement pstmt = conn.prepareStatement(userQuery.add());
             pstmt.setInt(1, user.getId());
             pstmt.setString(2, user.getName());
             pstmt.setString(3, user.getPassword());
 
-            // Query문 실행
             pstmt.executeUpdate();
 
             pstmt.close();
@@ -44,11 +43,9 @@ public class UserDao {
         Connection conn = localConn.dbConnection();
         try {
 
-            // Query문 작성
             PreparedStatement pstmt = conn.prepareStatement(userQuery.findOne());
             pstmt.setInt(1, id);
 
-            // Query문 실행
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             User user = new User(
