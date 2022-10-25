@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.spring.vo.User;
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,5 +53,13 @@ class UserDaoTest {
         userDao.add(user1);
         assertThrows(EmptyResultDataAccessException.class
                 , () -> userDao.findById(4));
+    }
+
+    @DisplayName("DB user 전체 가져오기")
+    @Test
+    void getUserFindAll() throws SQLException {
+        userDao.add(user1);
+        List<User> findAll = userDao.findAll();
+        assertEquals(1, findAll.size());
     }
 }

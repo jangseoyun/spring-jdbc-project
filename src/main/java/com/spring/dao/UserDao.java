@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDao {
 
@@ -79,10 +81,29 @@ public class UserDao {
         ps.executeUpdate();
     }
 
+    public List<User> findAll() throws SQLException{
+        Connection conn = localConn.dbConnection();
+
+        PreparedStatement ps = conn.prepareStatement(userQuery.findAll());
+        ResultSet rs = ps.executeQuery();
+
+        List<User> userList = new ArrayList<>();
+        while (rs.next()) {
+            userList.add(
+                    new User(rs.getInt("id")
+                    , rs.getString("name")
+                    , rs.getString("password"))
+            );
+        }
+
+        return userList;
+    }
+
     public static void main(String[] args) throws SQLException {
         UserDao userDao = new UserDaoFactory().localUserDao();
-//        userDao.add();
-        User user = userDao.findById(5);
-        System.out.println(user.getName());
+        //userDao.add();
+        System.out.println(userDao.findAll());
+        //User user = userDao.findById(5);
+        //System.out.println(user.getName());
     }
 }
