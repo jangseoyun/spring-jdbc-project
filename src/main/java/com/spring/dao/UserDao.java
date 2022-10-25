@@ -24,10 +24,10 @@ public class UserDao {
         this.userQuery = new UserQueryImpl();
     }
 
-    public void add(User user) throws SQLException {
-        Connection conn = localConn.dbConnection();
-        try {
+    public void add(User user) {
 
+        try {
+            Connection conn = localConn.dbConnection();
             //쿼리 바인딩
             PreparedStatement pstmt = new AddAllStrategy().makePreparedStatement(conn);
             pstmt.setInt(1, user.getId());
@@ -44,10 +44,10 @@ public class UserDao {
         }
     }
 
-    public User findById(int id) throws SQLException {
-        Connection conn = localConn.dbConnection();
-        try {
+    public User findById(int id) {
 
+        try {
+            Connection conn = localConn.dbConnection();
             PreparedStatement pstmt = conn.prepareStatement(userQuery.findOne());
             pstmt.setInt(1, id);
 
@@ -79,9 +79,12 @@ public class UserDao {
 
         PreparedStatement ps = conn.prepareStatement(userQuery.deleteAll());
         ps.executeUpdate();
+
+        conn.close();
+        ps.close();
     }
 
-    public List<User> findAll() throws SQLException{
+    public List<User> findAll() throws SQLException {
         Connection conn = localConn.dbConnection();
 
         PreparedStatement ps = conn.prepareStatement(userQuery.findAll());
@@ -91,19 +94,36 @@ public class UserDao {
         while (rs.next()) {
             userList.add(
                     new User(rs.getInt("id")
-                    , rs.getString("name")
-                    , rs.getString("password"))
+                            , rs.getString("name")
+                            , rs.getString("password"))
             );
         }
 
         return userList;
     }
 
+    public int getCountAll() {
+        int count = 0;
+        Connection conn;
+        try {
+            conn = localConn.dbConnection();
+            PreparedStatement ps = conn.prepareStatement(userQuery.getCountAll());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.getMessage();
+        }
+        return count;
+    }
+
+
     public static void main(String[] args) throws SQLException {
         UserDao userDao = new UserDaoFactory().localUserDao();
         //userDao.add();
-        System.out.println(userDao.findAll());
-        //User user = userDao.findById(5);
-        //System.out.println(user.getName());
+        //System.out.println(userDao.findAll());
+        User user = userDao.findById(1);
+        System.out.println(user.getName());
     }
 }
