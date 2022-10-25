@@ -51,8 +51,11 @@ public class UserDao {
             // Query문 실행
             ResultSet rs = pstmt.executeQuery();
             rs.next();
-            User user = new User(rs.getInt("id"), rs.getString("name"),
-                    rs.getString("password"));
+            User user = new User(
+                    rs.getInt("id")
+                    , rs.getString("name")
+                    , rs.getString("password")
+            );
 
             rs.close();
             pstmt.close();
