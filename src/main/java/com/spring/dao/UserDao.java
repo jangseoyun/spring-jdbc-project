@@ -1,13 +1,16 @@
 package com.spring.dao;
 
+import com.spring.comtext.AddAllStrategy;
+import com.spring.domain.ConnectionMaker;
 import com.spring.domain.QueryCrud;
 import com.spring.domain.UserQueryImpl;
-import com.spring.domain.ConnectionMaker;
 import com.spring.vo.User;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import java.sql.*;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UserDao {
 
@@ -20,12 +23,11 @@ public class UserDao {
     }
 
     public void add(User user) throws SQLException {
-        Map<String, String> env = System.getenv();
         Connection conn = localConn.dbConnection();
         try {
 
             //쿼리 바인딩
-            PreparedStatement pstmt = conn.prepareStatement(userQuery.add());
+            PreparedStatement pstmt = new AddAllStrategy().makePreparedStatement(conn);
             pstmt.setInt(1, user.getId());
             pstmt.setString(2, user.getName());
             pstmt.setString(3, user.getPassword());
